@@ -14,34 +14,57 @@ on:
 #
 # 2. Change these variables for your configuration:
 env:
-  AZURE_WEBAPP_PACKAGE_PATH: './src/Demo.Site'  # set this to the path to your web app project, defaults to the repository root
-  DOTNET_VERSION: '3.1.x'                       # set this to the dot net version to use
+  APP_CODE_PATH: './src/Demo.Site'
+  TF_CODE_PATH: './terraform'
+  DOTNET_VERSION: '3.1.x'
+  APP_SVC_NAME: cdw-ghactiondemo-20200601X
+  APP_SVC_LOCATION: westcentralus
 
 jobs:
-  build-and-deploy:
+  terraform:
     runs-on: ubuntu-latest
     steps:
 
-      # Checkout the repo
-      - uses: actions/checkout@master
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    - name: Terraform Init
+      working-directory: ${{ env.TF_CODE_PATH }}
+      run: terraform init
+
+    - name: Terraform Apply
+      working-directory: ${{ env.TF_CODE_PATH }}
+      run: terraform apply -var 'name=${{ env.APP_SVC_NAME }}' -var 'location=${{ env.APP_SVC_LOCATION }}' -auto-approve
+
+  # build-and-deploy:
+  #   runs-on: ubuntu-latest
+  #   steps:
+
+  #     # Checkout the repo
+  #     - uses: actions/checkout@master
       
-      # Setup .NET Core SDK
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }} 
+  #     # Setup .NET Core SDK
+  #     - name: Setup .NET Core
+  #       uses: actions/setup-dotnet@v1
+  #       with:
+  #         dotnet-version: ${{ env.DOTNET_VERSION }} 
       
-      # Run dotnet build and publish
-      - name: Build and publish
-        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-        run: |
-          dotnet build --configuration Release
-          dotnet publish -c Release -o './publish' 
+  #     # Run dotnet build and publish
+  #     - name: Build and publish
+  #       working-directory: ${{ env.APP_CODE_PATH }}
+  #       run: |
+  #         dotnet build --configuration Release
+  #         dotnet publish -c Release -o './publish' 
           
-      # Deploy to Azure Web apps
-      - name: Webapp deploy
-        uses: azure/webapps-deploy@v2
-        with: 
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/publish'
+  #     # Deploy to Azure Web apps
+  #     - name: Webapp deploy
+  #       uses: azure/webapps-deploy@v2
+  #       with: 
+  #         app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+  #         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+  #         package: '${{ env.APP_CODE_PATH }}/publish'
