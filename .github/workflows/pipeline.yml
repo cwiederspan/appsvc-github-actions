@@ -37,7 +37,7 @@ jobs:
 
     - name: Terraform Apply
       working-directory: ${{ env.TF_CODE_PATH }}
-      run: terraform apply -auto-approve
+      run: terraform apply -auto-approve -var-file terraform.tfvars
 
   # build-and-deploy:
   #   runs-on: ubuntu-latest
