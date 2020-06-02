@@ -1,12 +1,11 @@
 terraform {
   required_version = ">= 0.12"
 
-  backend "remote" {
-    organization = "cdwms"
-
-    workspaces {
-      name = "appsvc-github-actions"
-    }
+  backend "azurerm" {
+    environment          = "public"
+    storage_account_name = "tfstate20200406"
+    container_name       = "tfstatefiles"
+    key                  = "appsvcghactions.tfstate"
   }
 }
 
