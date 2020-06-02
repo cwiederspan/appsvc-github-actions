@@ -10,16 +10,19 @@ env:
   TF_CODE_PATH: './terraform'
   DOTNET_VERSION: '3.1.x'
   APP_SVC_NAME: ''
+  ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
+  ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+  ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+  ARM_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    env: 
-      DUMMY: 'testing'
-      ARM_TENANT_ID_X: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
-      ARM_SUBSCRIPTION_ID_X: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
-      ARM_CLIENT_ID_X: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
-      ARM_CLIENT_SECRET_X: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+    # env:
+    #   ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
+    #   ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+    #   ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+    #   ARM_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
 
       # ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
       # ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
