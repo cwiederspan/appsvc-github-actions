@@ -17,10 +17,10 @@ env:
   APP_CODE_PATH: './src/Demo.Site'
   TF_CODE_PATH: './terraform'
   DOTNET_VERSION: '3.1.x'
-  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  # ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  # ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  # ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  # ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
 
 jobs:
   terraform:
@@ -28,6 +28,11 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+
+    - name: Login
+      uses: azure/login@v1.1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
