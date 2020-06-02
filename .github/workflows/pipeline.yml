@@ -9,72 +9,63 @@ env:
   APP_CODE_PATH: './src/Demo.Site'
   TF_CODE_PATH: './terraform'
   DOTNET_VERSION: '3.1.x'
-  APP_SVC_NAME: ''
+  AZURE_WEBAPP_NAME: ''
 
 jobs:
-  terraform:
+  pipeline:
+    name: Build and Deploy
     runs-on: ubuntu-latest
     env:
-      ARM_XXX: ${{ secrets.AZURE_CREDENTIALS.tenantId }} 
+      IGNORE_ME: ${{ secrets.AZURE_CREDENTIALS.tenantId }}      # Fixes some bug that causes the Action to fail
       ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
       ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
       ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
       ARM_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
 
-      # ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
-      # ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
-      # ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
-      # ARM_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
-
-      # ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-      # ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      # ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      # ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-
     steps:
+
+    # Download the code from the repo
     - name: Checkout
       uses: actions/checkout@v2
 
+    # Setup .NET Core SDK
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }} 
+
+    # Run dotnet build and publish
+    - name: Build and publish
+      working-directory: ${{ env.APP_CODE_PATH }}
+      run: |
+        dotnet build --configuration Release
+        dotnet publish -c Release -o './publish'
+
+    # Log into Azure
+    - name: 'Login to Azure'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # Setup the Terraform tasks
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
 
+    # Init Terraform runtime
     - name: Terraform Init
       working-directory: ${{ env.TF_CODE_PATH }}
       run: terraform init -backend-config="access_key=${{ secrets.ARM_STORAGE_KEY }}"
 
+    # Apply the Terraform IaC
     - name: Terraform Apply
       working-directory: ${{ env.TF_CODE_PATH }}
-      run: terraform apply -auto-approve
+      run: terraform apply -auto-approve \
+             -var 'name=${{ env.AZURE_WEBAPP_NAME }}' \
+             -var 'location=${{ env.AZURE_WEBAPP_LOCATION }}
 
-  # build-and-deploy:
-  #   runs-on: ubuntu-latest
-  #   steps:
-
-  #     # Checkout the repo
-  #     - uses: actions/checkout@master
-      
-  #     # Setup .NET Core SDK
-  #     - name: Setup .NET Core
-  #       uses: actions/setup-dotnet@v1
-  #       with:
-  #         dotnet-version: ${{ env.DOTNET_VERSION }} 
-      
-  #     # Run dotnet build and publish
-  #     - name: Build and publish
-  #       working-directory: ${{ env.APP_CODE_PATH }}
-  #       run: |
-  #         dotnet build --configuration Release
-  #         dotnet publish -c Release -o './publish'
-
-  #     # Log into Azure
-  #     - name: 'Login to Azure'
-  #       uses: azure/login@v1
-  #       with:
-  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
-  #     # Deploy to Azure Web apps
-  #     - name: Webapp deploy
-  #       uses: azure/webapps-deploy@v2
-  #       with: 
-  #         app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-  #         package: '${{ env.APP_CODE_PATH }}/publish'
+    # Deploy to Azure Web apps
+    - name: Webapp deploy
+      uses: azure/webapps-deploy@v2
+      with: 
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        package: '${{ env.APP_CODE_PATH }}/publish'
