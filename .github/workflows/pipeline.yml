@@ -22,14 +22,20 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
     steps:
-    - uses: ams0/terraform-apply-for-azure-action@v1
-      with:
-        path: ${{ env.TF_CODE_PATH }}
-        arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}
-        arm_client_id: ${{ secrets.ARM_CLIENT_ID }}
-        arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}
-        arm_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        arm_access_key: ${{ secrets.ARM_STORAGE_KEY }}
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Terraform Init
+      working-directory: ${{ env.TF_CODE_PATH }}
+      run: terraform init -backend-config="access_key=${{ secrets.ARM_STORAGE_KEY }}"
+
+    - name: Terraform Apply
+      working-directory: ${{ env.TF_CODE_PATH }}
+      run: terraform apply -auto-approve
 
   # build-and-deploy:
   #   runs-on: ubuntu-latest
