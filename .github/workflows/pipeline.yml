@@ -61,8 +61,8 @@ jobs:
     - name: Terraform Apply
       working-directory: ${{ env.TF_CODE_PATH }}
       run: terraform apply -auto-approve \
-             -var 'name=${{ env.AZURE_WEBAPP_NAME }}' \
-             -var 'location=${{ env.AZURE_WEBAPP_LOCATION }}'
+             -var "name=${{ env.AZURE_WEBAPP_NAME }}" \
+             -var "location=${{ env.AZURE_WEBAPP_LOCATION }}"
 
     # Deploy to Azure Web apps
     - name: Webapp Deploy
