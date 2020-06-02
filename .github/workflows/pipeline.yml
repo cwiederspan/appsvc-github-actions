@@ -9,7 +9,7 @@ env:
   APP_CODE_PATH: './src/Demo.Site'
   TF_CODE_PATH: './terraform'
   DOTNET_VERSION: '3.1.x'
-  AZURE_WEBAPP_NAME: 'cdw-ghactiondemo-20200601X'
+  AZURE_WEBAPP_NAME: 'cdw-ghactiondemo-20200602'
   AZURE_WEBAPP_LOCATION: 'westcentralus'
 
 jobs:
@@ -55,7 +55,7 @@ jobs:
     # Init Terraform runtime
     - name: Terraform Init
       working-directory: ${{ env.TF_CODE_PATH }}
-      run: terraform init -backend-config="access_key=${{ secrets.ARM_STORAGE_KEY }}"
+      run: terraform init -backend-config="access_key=${{ secrets.TF_STATE_STORAGE_KEY }}"
 
     # Apply the Terraform IaC
     - name: Terraform Apply
