@@ -59,10 +59,11 @@ jobs:
 
     # Apply the Terraform IaC
     - name: Terraform Apply
+      env:
+        TF_VAR_name: ${{ env.AZURE_WEBAPP_NAME }}
+        TF_VAR_location: ${{ env.AZURE_WEBAPP_LOCATION }}
       working-directory: ${{ env.TF_CODE_PATH }}
-      run: terraform apply -auto-approve \
-             -var "name=${{ env.AZURE_WEBAPP_NAME }}" \
-             -var "location=${{ env.AZURE_WEBAPP_LOCATION }}"
+      run: terraform apply -auto-approve
 
     # Deploy to Azure Web apps
     - name: Webapp Deploy
