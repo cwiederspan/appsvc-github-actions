@@ -14,8 +14,9 @@ env:
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    env:
-      ARM_TENANT_ID_X: ${{ fromJson(secrets.AZURE_CREDENTIALS).xxx }}
+    env: 
+      DUMMY: 'testing'
+      ARM_TENANT_ID_X: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
       ARM_SUBSCRIPTION_ID_X: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
       ARM_CLIENT_ID_X: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
       ARM_CLIENT_SECRET_X: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
@@ -45,35 +46,35 @@ jobs:
       working-directory: ${{ env.TF_CODE_PATH }}
       run: terraform apply -auto-approve
 
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
+  # build-and-deploy:
+  #   runs-on: ubuntu-latest
+  #   steps:
 
-      # Checkout the repo
-      - uses: actions/checkout@master
+  #     # Checkout the repo
+  #     - uses: actions/checkout@master
       
-      # Setup .NET Core SDK
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }} 
+  #     # Setup .NET Core SDK
+  #     - name: Setup .NET Core
+  #       uses: actions/setup-dotnet@v1
+  #       with:
+  #         dotnet-version: ${{ env.DOTNET_VERSION }} 
       
-      # Run dotnet build and publish
-      - name: Build and publish
-        working-directory: ${{ env.APP_CODE_PATH }}
-        run: |
-          dotnet build --configuration Release
-          dotnet publish -c Release -o './publish'
+  #     # Run dotnet build and publish
+  #     - name: Build and publish
+  #       working-directory: ${{ env.APP_CODE_PATH }}
+  #       run: |
+  #         dotnet build --configuration Release
+  #         dotnet publish -c Release -o './publish'
 
-      # Log into Azure
-      - name: 'Login to Azure'
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  #     # Log into Azure
+  #     - name: 'Login to Azure'
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
       
-      # Deploy to Azure Web apps
-      - name: Webapp deploy
-        uses: azure/webapps-deploy@v2
-        with: 
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-          package: '${{ env.APP_CODE_PATH }}/publish'
+  #     # Deploy to Azure Web apps
+  #     - name: Webapp deploy
+  #       uses: azure/webapps-deploy@v2
+  #       with: 
+  #         app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+  #         package: '${{ env.APP_CODE_PATH }}/publish'
