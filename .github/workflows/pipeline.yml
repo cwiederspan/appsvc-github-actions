@@ -10,7 +10,7 @@ env:
   TF_CODE_PATH: './terraform'
   DOTNET_VERSION: '3.1.x'
   AZURE_WEBAPP_NAME: 'cdw-ghactiondemo-20200601X'
-  AZURE_WEBAPP_LOCATION: westcentralus'
+  AZURE_WEBAPP_LOCATION: 'westcentralus'
 
 jobs:
   pipeline:
@@ -43,7 +43,7 @@ jobs:
         dotnet publish -c Release -o './publish'
 
     # Log into Azure
-    - name: 'Login to Azure'
+    - name: Login to Azure
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -65,7 +65,7 @@ jobs:
              -var 'location=${{ env.AZURE_WEBAPP_LOCATION }}'
 
     # Deploy to Azure Web apps
-    - name: Webapp deploy
+    - name: Webapp Deploy
       uses: azure/webapps-deploy@v2
       with: 
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
