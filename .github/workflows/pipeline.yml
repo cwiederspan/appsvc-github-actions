@@ -24,49 +24,49 @@ jobs:
 
     steps:
 
-    # Download the code from the repo
-    - name: Checkout
-      uses: actions/checkout@v2
+      # Download the code from the repo
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    # Setup .NET Core SDK
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }} 
+      # Setup .NET Core SDK
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }} 
 
-    # Run dotnet build and publish
-    - name: .NET Build and Publish
-      working-directory: ${{ env.APP_CODE_PATH }}
-      run: |
-        dotnet build --configuration Release
-        dotnet publish -c Release -o './publish'
+      # Run dotnet build and publish
+      - name: .NET Build and Publish
+        working-directory: ${{ env.APP_CODE_PATH }}
+        run: |
+          dotnet build --configuration Release
+          dotnet publish -c Release -o './publish'
 
-    # Log into Azure
-    - name: Login to Azure
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # Log into Azure
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # Setup the Terraform tasks
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
+      # Setup the Terraform tasks
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
 
-    # Init Terraform runtime
-    - name: Terraform Init
-      working-directory: ${{ env.TF_CODE_PATH }}
-      run: terraform init -backend-config="access_key=${{ secrets.TF_STATE_STORAGE_KEY }}"
+      # Init Terraform runtime
+      - name: Terraform Init
+        working-directory: ${{ env.TF_CODE_PATH }}
+        run: terraform init -backend-config="access_key=${{ secrets.TF_STATE_STORAGE_KEY }}"
 
-    # Apply the Terraform IaC
-    - name: Terraform Apply
-      env:
-        TF_VAR_name: ${{ env.AZURE_WEBAPP_NAME }}
-        TF_VAR_location: ${{ env.AZURE_WEBAPP_LOCATION }}
-      working-directory: ${{ env.TF_CODE_PATH }}
-      run: terraform apply -auto-approve
+      # Apply the Terraform IaC
+      - name: Terraform Apply
+        env:
+          TF_VAR_name: ${{ env.AZURE_WEBAPP_NAME }}
+          TF_VAR_location: ${{ env.AZURE_WEBAPP_LOCATION }}
+        working-directory: ${{ env.TF_CODE_PATH }}
+        run: terraform apply -auto-approve
 
-    # Deploy to Azure Web apps
-    - name: Webapp Deploy
-      uses: azure/webapps-deploy@v2
-      with: 
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        package: '${{ env.APP_CODE_PATH }}/publish'
+      # Deploy to Azure Web apps
+      - name: Webapp Deploy
+        uses: azure/webapps-deploy@v2
+        with: 
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: '${{ env.APP_CODE_PATH }}/publish'
