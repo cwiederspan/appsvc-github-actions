@@ -39,6 +39,7 @@ resource "azurerm_app_service_plan" "plan" {
 
   sku {
     tier     = "Basic"
+    size     = "B1"
     capacity = 1
   }
 }
