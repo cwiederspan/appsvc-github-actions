@@ -17,7 +17,7 @@ jobs:
     name: Build and Deploy
     runs-on: ubuntu-latest
     env:
-      IGNORE_ME: ${{ secrets.AZURE_CREDENTIALS.tenantId }}      # Fixes some bug that causes the Action to fail
+      # IGNORE_ME: ${{ secrets.AZURE_CREDENTIALS.tenantId }}      # Fixes some bug that causes the Action to fail
       ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
       ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
       ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
